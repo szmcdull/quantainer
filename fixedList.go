@@ -30,3 +30,15 @@ func (me *FixedList[T]) AddLast(v T) {
 func (me *FixedList[T]) ToSlice() []T {
 	return me.l.ToSlice()
 }
+
+func (me *FixedList[T]) Count() int {
+	return me.l.count
+}
+
+func (me *FixedList[T]) First() *Node[T] {
+	return me.l.First()
+}
+
+func (me *FixedList[T]) Last() *Node[T] {
+	return me.l.Last()
+}

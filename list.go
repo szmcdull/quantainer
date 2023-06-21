@@ -78,18 +78,16 @@ func (me *List[T]) Remove(node *Node[T]) {
 			panic("Node not in list")
 		}
 		me.front = node.next
+	} else {
+		node.prev.next = node.next
 	}
+
 	if node.next == nil {
 		if me.back != node {
 			panic("Node not in list")
 		}
 		me.back = node.prev
-	}
-
-	if node.prev != nil {
-		node.prev.next = node.next
-	}
-	if node.next != nil {
+	} else {
 		node.next.prev = node.prev
 	}
 
