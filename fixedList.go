@@ -13,9 +13,9 @@ func NewFixedList[T any](size int) *FixedList[T] {
 	}
 }
 
-func NewFixedListConfigurable[T any](size int) *FixedList[T] {
+func NewFixedListConfigurable[T any](configLoader func() int) *FixedList[T] {
 	return &FixedList[T]{
-		maxSize: func() int { return size },
+		maxSize: configLoader,
 	}
 }
 
