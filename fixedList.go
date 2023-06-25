@@ -4,25 +4,31 @@ package quantainer
 
 type FixedList[T any] struct {
 	l       List[T]
-	maxSize int
+	maxSize func() int
 }
 
 func NewFixedList[T any](size int) *FixedList[T] {
 	return &FixedList[T]{
-		maxSize: size,
+		maxSize: func() int { return size },
+	}
+}
+
+func NewFixedListConfigurable[T any](size int) *FixedList[T] {
+	return &FixedList[T]{
+		maxSize: func() int { return size },
 	}
 }
 
 func (me *FixedList[T]) AddFirst(v T) {
 	me.l.AddFirst(v)
-	for me.l.count > me.maxSize {
+	for me.l.count > me.maxSize() {
 		me.l.PopLast()
 	}
 }
 
 func (me *FixedList[T]) AddLast(v T) {
 	me.l.AddLast(v)
-	for me.l.count > me.maxSize {
+	for me.l.count > me.maxSize() {
 		me.l.PopFirst()
 	}
 }
