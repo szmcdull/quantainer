@@ -153,3 +153,24 @@ func (me *List[T]) ToSlice() []T {
 	}
 	return slice
 }
+
+func (me *List[T]) PopFirstWhen(fn func(v *T) bool) {
+	n := me.First()
+	for ; n != nil; n = n.next {
+		if !fn(&n.Value) {
+			break
+		}
+	}
+	me.front = n
+}
+
+func (me *List[T]) PopLastWhen(fn func(v *T) bool) {
+	n := me.Last()
+	for ; n != nil; n = n.prev {
+		if !fn(&n.Value) {
+			break
+		}
+	}
+	me.back = n
+	n.next = nil
+}

@@ -137,3 +137,37 @@ func ExampleList_Remove_third() {
 	// 1
 	// 3
 }
+
+func ExampleList_PopFirstWhen() {
+	l := NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+	l.PopFirstWhen(func(v *int) bool {
+		return *v < 3
+	})
+	for n := l.First(); n != nil; n = n.Next() {
+		fmt.Println(n.Value)
+	}
+	// Output:
+	// 3
+	// 4
+}
+
+func ExampleList_PopLastWhen() {
+	l := NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+	l.PopLastWhen(func(v *int) bool {
+		return *v > 2
+	})
+	for n := l.First(); n != nil; n = n.Next() {
+		fmt.Println(n.Value)
+	}
+	// Output:
+	// 1
+	// 2
+}
