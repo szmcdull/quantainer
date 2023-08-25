@@ -48,3 +48,7 @@ func (me *FixedList[T]) First() *Node[T] {
 func (me *FixedList[T]) Last() *Node[T] {
 	return me.l.Last()
 }
+
+func (me *FixedList[T]) Clear() {
+	me.l.Clear()
+}
