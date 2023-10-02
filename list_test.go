@@ -207,13 +207,26 @@ func ExampleList_PopFirstWhen() {
 	for n := l.First(); n != nil; n = n.Next() {
 		fmt.Println(n.Value)
 	}
-	fmt.Println()
-	fmt.Println(l.Count())
 	// Output:
 	// 3
 	// 4
-	//
-	// 2
+}
+
+func TestPopFirstWhen(t *testing.T) {
+	l := NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+	l.PopFirstWhen(func(v *int) bool {
+		return *v < 3
+	})
+	for n := l.First(); n != nil; n = n.Next() {
+		fmt.Println(n.Value)
+	}
+	if l.Count() != 2 || l.First().prev != nil {
+		t.Fail()
+	}
 }
 
 func ExampleList_PopLastWhen() {
@@ -228,11 +241,24 @@ func ExampleList_PopLastWhen() {
 	for n := l.First(); n != nil; n = n.Next() {
 		fmt.Println(n.Value)
 	}
-	fmt.Println()
-	fmt.Println(l.Count())
 	// Output:
 	// 1
 	// 2
-	//
-	// 2
+}
+
+func TestPopLastWhen(t *testing.T) {
+	l := NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+	l.PopLastWhen(func(v *int) bool {
+		return *v > 2
+	})
+	for n := l.First(); n != nil; n = n.Next() {
+		fmt.Println(n.Value)
+	}
+	if l.Count() != 2 || l.First().prev != nil {
+		t.Fail()
+	}
 }
