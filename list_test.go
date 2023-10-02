@@ -2,7 +2,64 @@ package quantainer
 
 import (
 	"fmt"
+	"testing"
 )
+
+func TestPopFirst(t *testing.T) {
+	l := NewList[int]()
+	l.AddFirst(1)
+	l.PopFirst()
+	if l.First() != nil {
+		t.Fail()
+	}
+	if l.Last() != nil || l.Count() != 0 {
+		t.Fail()
+	}
+
+	l = NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	n := l.PopFirst()
+	if n.Value != 1 {
+		t.Errorf("Expected 1, got %v", n.Value)
+	}
+
+	n = l.First()
+	if n.Value != 2 {
+		t.Fail()
+	}
+	if n.prev != nil || n.next != nil || l.Count() != 1 {
+		t.Errorf(`prev or next is not nil`)
+	}
+}
+
+func TestPopLast(t *testing.T) {
+	l := NewList[int]()
+	l.AddFirst(1)
+	l.PopLast()
+	if l.First() != nil {
+		t.Fail()
+	}
+	if l.Last() != nil || l.Count() != 0 {
+		t.Fail()
+	}
+
+	l = NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	n := l.PopLast()
+	if n.Value != 2 {
+		t.Errorf("Expected 1, got %v", n.Value)
+	}
+
+	n = l.First()
+	if n.Value != 1 {
+		t.Fail()
+	}
+	if n.prev != nil || n.next != nil || l.Count() != 1 {
+		t.Errorf(`prev or next is not nil`)
+	}
+}
 
 func ExampleList_AddFirst() {
 	l := NewList[int]()
@@ -150,9 +207,13 @@ func ExampleList_PopFirstWhen() {
 	for n := l.First(); n != nil; n = n.Next() {
 		fmt.Println(n.Value)
 	}
+	fmt.Println()
+	fmt.Println(l.Count())
 	// Output:
 	// 3
 	// 4
+	//
+	// 2
 }
 
 func ExampleList_PopLastWhen() {
@@ -167,7 +228,11 @@ func ExampleList_PopLastWhen() {
 	for n := l.First(); n != nil; n = n.Next() {
 		fmt.Println(n.Value)
 	}
+	fmt.Println()
+	fmt.Println(l.Count())
 	// Output:
 	// 1
+	// 2
+	//
 	// 2
 }

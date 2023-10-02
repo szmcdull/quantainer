@@ -110,7 +110,11 @@ func (me *List[T]) PopFirst() *Node[T] {
 		return nil
 	}
 	next := node.next
-	next.prev = nil
+	if next != nil {
+		next.prev = nil
+	} else {
+		me.back = nil
+	}
 	me.front = next
 	node.next = nil
 	me.count--
@@ -123,7 +127,11 @@ func (me *List[T]) PopLast() *Node[T] {
 		return nil
 	}
 	prev := node.prev
-	prev.next = nil
+	if prev != nil {
+		prev.next = nil
+	} else {
+		me.front = nil
+	}
 	me.back = prev
 	node.prev = nil
 	me.count--
@@ -156,21 +164,28 @@ func (me *List[T]) ToSlice() []T {
 
 func (me *List[T]) PopFirstWhen(fn func(v *T) bool) {
 	n := me.First()
+	i := 0
 	for ; n != nil; n = n.next {
 		if !fn(&n.Value) {
 			break
 		}
+		i++
 	}
 	me.front = n
+	n.prev = nil
+	me.count -= i
 }
 
 func (me *List[T]) PopLastWhen(fn func(v *T) bool) {
 	n := me.Last()
+	i := 0
 	for ; n != nil; n = n.prev {
 		if !fn(&n.Value) {
 			break
 		}
+		i++
 	}
 	me.back = n
 	n.next = nil
+	me.count -= i
 }
