@@ -164,6 +164,10 @@ func (me *List[T]) ToSlice() []T {
 
 func (me *List[T]) PopFirstWhen(fn func(v *T) bool) {
 	n := me.First()
+	if n == nil {
+		return
+	}
+
 	i := 0
 	for ; n != nil; n = n.next {
 		if !fn(&n.Value) {
@@ -178,6 +182,10 @@ func (me *List[T]) PopFirstWhen(fn func(v *T) bool) {
 
 func (me *List[T]) PopLastWhen(fn func(v *T) bool) {
 	n := me.Last()
+	if n == nil {
+		return
+	}
+
 	i := 0
 	for ; n != nil; n = n.prev {
 		if !fn(&n.Value) {

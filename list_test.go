@@ -262,3 +262,8 @@ func TestPopLastWhen(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestPopFirstWhen2(t *testing.T) {
+	l := NewList[int]()
+	l.PopFirstWhen(func(v *int) bool { return true })
+}
