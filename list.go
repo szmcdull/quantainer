@@ -176,7 +176,9 @@ func (me *List[T]) PopFirstWhen(fn func(v *T) bool) {
 		i++
 	}
 	me.front = n
-	n.prev = nil
+	if n != nil {
+		n.prev = nil
+	}
 	me.count -= i
 }
 
@@ -194,6 +196,8 @@ func (me *List[T]) PopLastWhen(fn func(v *T) bool) {
 		i++
 	}
 	me.back = n
-	n.next = nil
+	if n != nil {
+		n.prev = nil
+	}
 	me.count -= i
 }
