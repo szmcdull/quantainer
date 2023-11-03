@@ -267,3 +267,33 @@ func TestPopFirstWhen2(t *testing.T) {
 	l := NewList[int]()
 	l.PopFirstWhen(func(v *int) bool { return true })
 }
+
+func TestPopFirstWhen3(t *testing.T) {
+	l := NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+	l.PopFirstWhen(func(v *int) bool { return true })
+	if l.Count() != 0 || l._Count() != 0 {
+		t.Fail()
+	}
+	if l.back != nil || l.front != nil {
+		t.Fail()
+	}
+}
+
+func TestPopLastWhen3(t *testing.T) {
+	l := NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+	l.PopLastWhen(func(v *int) bool { return true })
+	if l.Count() != 0 || l._Count() != 0 {
+		t.Fail()
+	}
+	if l.back != nil || l.front != nil {
+		t.Fail()
+	}
+}

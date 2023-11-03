@@ -104,18 +104,31 @@ func (me *List[T]) Last() *Node[T] {
 	return me.back
 }
 
+func (me *List[T]) setFront(n *Node[T]) {
+	me.front = n
+	if n != nil {
+		n.prev = nil
+	} else {
+		me.back = nil
+	}
+}
+
+func (me *List[T]) setBack(n *Node[T]) {
+	me.back = n
+	if n != nil {
+		n.next = nil
+	} else {
+		me.front = nil
+	}
+}
+
 func (me *List[T]) PopFirst() *Node[T] {
 	node := me.front
 	if node == nil {
 		return nil
 	}
-	next := node.next
-	if next != nil {
-		next.prev = nil
-	} else {
-		me.back = nil
-	}
-	me.front = next
+
+	me.setFront(node.next)
 	node.next = nil
 	me.count--
 	return node
@@ -126,13 +139,7 @@ func (me *List[T]) PopLast() *Node[T] {
 	if node == nil {
 		return nil
 	}
-	prev := node.prev
-	if prev != nil {
-		prev.next = nil
-	} else {
-		me.front = nil
-	}
-	me.back = prev
+	me.setBack(node.prev)
 	node.prev = nil
 	me.count--
 	return node
@@ -146,6 +153,15 @@ func (me *List[T]) Clear() {
 
 func (me *List[T]) Count() int {
 	return me.count
+}
+
+func (me *List[T]) _Count() int {
+	first := me.First()
+	count := 0
+	for ; first != nil; first = first.next {
+		count++
+	}
+	return count
 }
 
 func (me *Node[T]) Next() *Node[T] {
@@ -175,10 +191,7 @@ func (me *List[T]) PopFirstWhen(fn func(v *T) bool) {
 		}
 		i++
 	}
-	me.front = n
-	if n != nil {
-		n.prev = nil
-	}
+	me.setFront(n)
 	me.count -= i
 }
 
@@ -195,9 +208,6 @@ func (me *List[T]) PopLastWhen(fn func(v *T) bool) {
 		}
 		i++
 	}
-	me.back = n
-	if n != nil {
-		n.prev = nil
-	}
+	me.setBack(n)
 	me.count -= i
 }
