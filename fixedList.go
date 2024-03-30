@@ -52,3 +52,11 @@ func (me *FixedList[T]) Last() *Node[T] {
 func (me *FixedList[T]) Clear() {
 	me.l.Clear()
 }
+
+func (me *FixedList[T]) MaxSize() int {
+	return me.maxSize()
+}
+
+func (me *FixedList[T]) Full() bool {
+	return me.l.count == me.maxSize()
+}
