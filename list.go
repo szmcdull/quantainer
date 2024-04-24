@@ -72,7 +72,9 @@ func (me *List[T]) AddBefore(next *Node[T], v T) *Node[T] {
 	return node
 }
 
-func (me *List[T]) Remove(node *Node[T]) {
+// Remove removes the node from the list and returns the next node to it.
+// It panics if the node is not in the list.
+func (me *List[T]) Remove(node *Node[T]) (next *Node[T]) {
 	if node.prev == nil {
 		if me.front != node {
 			panic("Node not in list")
@@ -92,8 +94,10 @@ func (me *List[T]) Remove(node *Node[T]) {
 	}
 
 	node.prev = nil
+	next = node.next
 	node.next = nil
 	me.count--
+	return
 }
 
 func (me *List[T]) First() *Node[T] {

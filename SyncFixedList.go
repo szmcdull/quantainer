@@ -60,3 +60,17 @@ func (me *SyncFixedList[T]) Clear() {
 	defer me.Unlock()
 	me.l.Clear()
 }
+
+func (me *SyncFixedList[T]) Remove(n *Node[T]) *Node[T] {
+	me.Lock()
+	defer me.Unlock()
+	return me.l.l.Remove(n)
+}
+
+func (me *SyncFixedList[T]) MaxSize() int {
+	return me.l.maxSize()
+}
+
+func (me *SyncFixedList[T]) Full() bool {
+	return me.l.l.count == me.l.maxSize()
+}
