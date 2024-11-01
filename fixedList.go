@@ -33,6 +33,18 @@ func (me *FixedList[T]) AddLast(v T) {
 	}
 }
 
+func (me *FixedList[T]) Remove(node *Node[T]) (next *Node[T]) {
+	return me.l.Remove(node)
+}
+
+func (me *FixedList[T]) PopFirst() *Node[T] {
+	return me.l.PopFirst()
+}
+
+func (me *FixedList[T]) PopLast() *Node[T] {
+	return me.l.PopLast()
+}
+
 func (me *FixedList[T]) ToSlice() []T {
 	return me.l.ToSlice()
 }
