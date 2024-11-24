@@ -172,6 +172,10 @@ func (me *Node[T]) Next() *Node[T] {
 	return me.next
 }
 
+func (me *Node[T]) Prev() *Node[T] {
+	return me.prev
+}
+
 func (me *List[T]) ToSlice() []T {
 	slice := make([]T, me.count)
 	i := 0
