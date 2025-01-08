@@ -306,22 +306,22 @@ func TestAt(t *testing.T) {
 	l.AddLast(4)
 
 	// Test valid indices
-	n := l.at(0)
+	n := l.At(0)
 	if n.Value != 1 {
 		t.Errorf("Expected 1, got %v", n.Value)
 	}
 
-	n = l.at(1)
+	n = l.At(1)
 	if n.Value != 2 {
 		t.Errorf("Expected 2, got %v", n.Value)
 	}
 
-	n = l.at(2)
+	n = l.At(2)
 	if n.Value != 3 {
 		t.Errorf("Expected 3, got %v", n.Value)
 	}
 
-	n = l.at(3)
+	n = l.At(3)
 	if n.Value != 4 {
 		t.Errorf("Expected 4, got %v", n.Value)
 	}
@@ -332,7 +332,7 @@ func TestAt(t *testing.T) {
 			t.Errorf("Expected panic for index out of range")
 		}
 	}()
-	l.at(4) // This should panic
+	l.At(4) // This should panic
 }
 
 func TestFromBack(t *testing.T) {

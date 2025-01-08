@@ -260,8 +260,8 @@ func (me *List[T]) Trim(start, end int) {
 		me.count = 0
 		return
 	}
-	front := me.at(start)
-	back := me.at(end - 1)
+	front := me.At(start)
+	back := me.At(end - 1)
 	if front.prev != nil {
 		front.prev = nil
 	}
@@ -273,12 +273,13 @@ func (me *List[T]) Trim(start, end int) {
 	me.count = absEnd - absStart
 }
 
-func (me *List[T]) at(i int) *Node[T] {
+// At returns the node at the given index. Negative indices are counted from the end of the list.
+func (me *List[T]) At(i int) *Node[T] {
 	if i < 0 {
 		return me.fromBack(-i - 1)
 	}
 	if i < 0 || i >= me.count {
-		panic(ErrorIndexOutOfRange)
+		return nil
 	}
 	n := me.front
 	for ; i > 0; i-- {
@@ -289,7 +290,7 @@ func (me *List[T]) at(i int) *Node[T] {
 
 func (me *List[T]) fromBack(i int) *Node[T] {
 	if i < 0 || i >= me.count {
-		panic(ErrorIndexOutOfRange)
+		return nil
 	}
 	n := me.back
 	for ; i > 0; i-- {
