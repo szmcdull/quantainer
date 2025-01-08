@@ -297,3 +297,156 @@ func TestPopLastWhen3(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestAt(t *testing.T) {
+	l := NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+
+	// Test valid indices
+	n := l.at(0)
+	if n.Value != 1 {
+		t.Errorf("Expected 1, got %v", n.Value)
+	}
+
+	n = l.at(1)
+	if n.Value != 2 {
+		t.Errorf("Expected 2, got %v", n.Value)
+	}
+
+	n = l.at(2)
+	if n.Value != 3 {
+		t.Errorf("Expected 3, got %v", n.Value)
+	}
+
+	n = l.at(3)
+	if n.Value != 4 {
+		t.Errorf("Expected 4, got %v", n.Value)
+	}
+
+	// Test invalid indices
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected panic for index out of range")
+		}
+	}()
+	l.at(4) // This should panic
+}
+
+func TestFromBack(t *testing.T) {
+	l := NewList[int]()
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+
+	// Test valid indices
+	n := l.fromBack(0)
+	if n.Value != 4 {
+		t.Errorf("Expected 4, got %v", n.Value)
+	}
+
+	n = l.fromBack(1)
+	if n.Value != 3 {
+		t.Errorf("Expected 3, got %v", n.Value)
+	}
+
+	n = l.fromBack(2)
+	if n.Value != 2 {
+		t.Errorf("Expected 2, got %v", n.Value)
+	}
+
+	n = l.fromBack(3)
+	if n.Value != 1 {
+		t.Errorf("Expected 1, got %v", n.Value)
+	}
+
+	// Test invalid indices
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected panic for index out of range")
+		}
+	}()
+	l.fromBack(4) // This should panic
+}
+
+func TestTrim(t *testing.T) {
+	l := NewList[int]()
+	l.AddLast(0)
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+
+	// Test trimming from the start
+	l.Trim(0, 3)
+	if l.Count() != 3 || l.First().Value != 0 || l.Last().Value != 2 {
+		t.Errorf("Expected list [0, 1, 2], got %v", l.ToSlice())
+	}
+
+	// Reset list
+	l = NewList[int]()
+	l.AddLast(0)
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+
+	// Test trimming from the middle
+	l.Trim(1, 3)
+	if l.Count() != 2 || l.First().Value != 1 || l.Last().Value != 2 {
+		t.Errorf("Expected list [1, 2], got %v", l.ToSlice())
+	}
+
+	// Reset list
+	l = NewList[int]()
+	l.AddLast(0)
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+
+	// Test trimming from the end
+	l.Trim(2, 5)
+	if l.Count() != 3 || l.First().Value != 2 || l.Last().Value != 4 {
+		t.Errorf("Expected list [2, 3, 4], got %v", l.ToSlice())
+	}
+
+	// Reset list
+	l = NewList[int]()
+	l.AddLast(0)
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+
+	// Test trimming with negative indices
+	l.Trim(-3, -1)
+	if l.Count() != 2 || l.First().Value != 2 || l.Last().Value != 3 {
+		t.Errorf("Expected list [2, 3], got %v", l.ToSlice())
+	}
+
+	// Reset list
+	l = NewList[int]()
+	l.AddLast(0)
+	l.AddLast(1)
+	l.AddLast(2)
+	l.AddLast(3)
+	l.AddLast(4)
+
+	// Test trimming the entire list
+	l.Trim(0, 0)
+	if l.Count() != 0 || l.First() != nil || l.Last() != nil {
+		t.Errorf("Expected empty list, got %v", l.ToSlice())
+	}
+
+	// Test invalid indices
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected panic for invalid indices")
+		}
+	}()
+	l.Trim(5, 6) // This should panic
+}

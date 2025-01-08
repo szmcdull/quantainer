@@ -1,5 +1,7 @@
 package quantainer
 
+import "fmt"
+
 type List[T any] struct {
 	front, back *Node[T]
 	count       int
@@ -176,6 +178,14 @@ func (me *Node[T]) Prev() *Node[T] {
 	return me.prev
 }
 
+func FromSlice[T any](slice []T) *List[T] {
+	list := NewList[T]()
+	for _, v := range slice {
+		list.AddLast(v)
+	}
+	return list
+}
+
 func (me *List[T]) ToSlice() []T {
 	slice := make([]T, me.count)
 	i := 0
@@ -218,4 +228,72 @@ func (me *List[T]) PopLastWhen(fn func(v *T) bool) {
 	}
 	me.setBack(n)
 	me.count -= i
+}
+
+var ErrorIndexOutOfRange = fmt.Errorf("index out of range")
+
+// Trim removes elements from the list starting from the start index to the end index.
+// The start index is inclusive and the end index is exclusive.
+// Negative indices are counted from the end of the list.
+func (me *List[T]) Trim(start, end int) {
+	l := me.count
+	absStart := start
+	absEnd := end
+	if absStart < 0 {
+		absStart = l + absStart
+	}
+	if absEnd < 0 {
+		absEnd = l + absEnd
+	}
+	if absStart > absEnd {
+		panic(fmt.Errorf("start index %d is greater than end index %d", start, end))
+	}
+	if absStart < 0 || absEnd < 0 || absStart >= l || absEnd > l {
+		panic(ErrorIndexOutOfRange)
+	}
+	if me.count == 0 {
+		return
+	}
+	if absStart == absEnd {
+		me.front = nil
+		me.back = nil
+		me.count = 0
+		return
+	}
+	front := me.at(start)
+	back := me.at(end - 1)
+	if front.prev != nil {
+		front.prev = nil
+	}
+	me.front = front
+	if back.next != nil {
+		back.next = nil
+	}
+	me.back = back
+	me.count = absEnd - absStart
+}
+
+func (me *List[T]) at(i int) *Node[T] {
+	if i < 0 {
+		return me.fromBack(-i - 1)
+	}
+	if i < 0 || i >= me.count {
+		panic(ErrorIndexOutOfRange)
+	}
+	n := me.front
+	for ; i > 0; i-- {
+		n = n.next
+	}
+	return n
+}
+
+func (me *List[T]) fromBack(i int) *Node[T] {
+	if i < 0 || i >= me.count {
+		panic(ErrorIndexOutOfRange)
+	}
+	n := me.back
+	for ; i > 0; i-- {
+		n = n.prev
+	}
+	return n
 }
