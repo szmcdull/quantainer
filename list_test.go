@@ -326,13 +326,9 @@ func TestAt(t *testing.T) {
 		t.Errorf("Expected 4, got %v", n.Value)
 	}
 
-	// Test invalid indices
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Expected panic for index out of range")
-		}
-	}()
-	l.At(4) // This should panic
+	if l.At(4) != nil {
+		t.Fail()
+	}
 }
 
 func TestFromBack(t *testing.T) {
@@ -363,13 +359,9 @@ func TestFromBack(t *testing.T) {
 		t.Errorf("Expected 1, got %v", n.Value)
 	}
 
-	// Test invalid indices
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Expected panic for index out of range")
-		}
-	}()
-	l.fromBack(4) // This should panic
+	if l.fromBack(4) != nil {
+		t.Fail()
+	}
 }
 
 func TestTrim(t *testing.T) {

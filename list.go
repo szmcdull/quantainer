@@ -278,7 +278,7 @@ func (me *List[T]) At(i int) *Node[T] {
 	if i < 0 {
 		return me.fromBack(-i - 1)
 	}
-	if i < 0 || i >= me.count {
+	if i >= me.count {
 		return nil
 	}
 	n := me.front
