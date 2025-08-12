@@ -94,7 +94,7 @@ func TestRingBuffer_Clear(t *testing.T) {
 
 func TestRingBuffer_Grow_NoWrap(t *testing.T) {
 	size := 3
-	rb := NewRingBufferConfigurable[int](size, func() int { return size })
+	rb := NewRingBufferConfigurable[int](func() int { return size })
 	rb.AddLast(1)
 	rb.AddLast(2)
 	size = 5 // grow before wrap
@@ -108,7 +108,7 @@ func TestRingBuffer_Grow_NoWrap(t *testing.T) {
 
 func TestRingBuffer_Grow_WithWrap(t *testing.T) {
 	size := 3
-	rb := NewRingBufferConfigurable[int](size, func() int { return size })
+	rb := NewRingBufferConfigurable[int](func() int { return size })
 	rb.AddLast(1)
 	rb.AddLast(2)
 	rb.AddLast(3)
@@ -123,7 +123,7 @@ func TestRingBuffer_Grow_WithWrap(t *testing.T) {
 
 func TestRingBuffer_Shrink_FromFull(t *testing.T) {
 	size := 5
-	rb := NewRingBufferConfigurable[int](size, func() int { return size })
+	rb := NewRingBufferConfigurable[int](func() int { return size })
 	rb.AddLast(1)
 	rb.AddLast(2)
 	rb.AddLast(3)
@@ -140,7 +140,7 @@ func TestRingBuffer_Shrink_FromFull(t *testing.T) {
 
 func TestRingBuffer_Shrink_WhenSparse(t *testing.T) {
 	size := 5
-	rb := NewRingBufferConfigurable[int](size, func() int { return size })
+	rb := NewRingBufferConfigurable[int](func() int { return size })
 	rb.AddLast(1)
 	rb.AddLast(2) // count=2
 	size = 3      // shrink, still enough capacity
@@ -166,7 +166,7 @@ func TestRingBuffer_SizeZero_AddPanics(t *testing.T) {
 
 func TestRingBuffer_Grow_WithWrap_TailLESizeDiff(t *testing.T) {
 	size := 5
-	rb := NewRingBufferConfigurable[int](size, func() int { return size })
+	rb := NewRingBufferConfigurable[int](func() int { return size })
 	// Fill and wrap once so tail=1
 	rb.AddLast(1)
 	rb.AddLast(2)
@@ -193,7 +193,7 @@ func TestRingBuffer_Grow_WithWrap_TailLESizeDiff(t *testing.T) {
 
 func TestRingBuffer_Grow_WithWrap_TailEqSizeDiff(t *testing.T) {
 	size := 5
-	rb := NewRingBufferConfigurable[int](size, func() int { return size })
+	rb := NewRingBufferConfigurable[int](func() int { return size })
 	// Make tail==2
 	rb.AddLast(1)
 	rb.AddLast(2)
@@ -221,7 +221,7 @@ func TestRingBuffer_Grow_WithWrap_TailEqSizeDiff(t *testing.T) {
 
 func TestRingBuffer_Grow_WithWrap_TailGtSizeDiff(t *testing.T) {
 	size := 5
-	rb := NewRingBufferConfigurable[int](size, func() int { return size })
+	rb := NewRingBufferConfigurable[int](func() int { return size })
 	// Make tail==3 (> sizeDiff=2)
 	rb.AddLast(1)
 	rb.AddLast(2)
@@ -313,7 +313,7 @@ func TestRingBuffer_FloatNaN_Sort(t *testing.T) {
 
 func TestRingBuffer_Shrink_KeepLatest(t *testing.T) {
 	size := 5
-	rb := NewRingBufferConfigurable[int](size, func() int { return size })
+	rb := NewRingBufferConfigurable[int](func() int { return size })
 	rb.AddLast(1)
 	rb.AddLast(2)
 	rb.AddLast(3)

@@ -28,7 +28,8 @@ func NewRingBuffer[T cmp.Ordered](size int) *RingBuffer[T] {
 
 // NewRingBufferConfigurable creates a new ring buffer with a configurable maximum size.
 // If maxSize is changed at runtime, the buffer will not resize until you add an element.
-func NewRingBufferConfigurable[T cmp.Ordered](size int, maxSize func() int) *RingBuffer[T] {
+func NewRingBufferConfigurable[T cmp.Ordered](maxSize func() int) *RingBuffer[T] {
+	size := maxSize()
 	return &RingBuffer[T]{
 		data:    make([]T, size),
 		maxSize: maxSize,
