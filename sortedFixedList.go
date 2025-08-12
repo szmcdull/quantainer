@@ -96,8 +96,9 @@ func (me *SortedFixedList[T]) SortedSlice() []T {
 	ii := 0
 	for i := me.TreeMap.Iterator(); i.Valid(); i.Next() {
 		count := i.Value()
+		key := i.Key()
 		for j := 0; j < count; j++ {
-			result[ii] = i.Key()
+			result[ii] = key
 			ii++
 		}
 	}

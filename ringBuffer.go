@@ -97,37 +97,42 @@ func (me *RingBuffer[T]) AddLast(v T) {
 	me.tail = tail
 }
 
-func (me *RingBuffer[T]) PopFirst() (result T) {
+func (me *RingBuffer[T]) PopFirst() (result *T) {
 	if me.count == 0 {
-		panic("PopFirst called on empty buffer")
+		return nil
 	}
 	head := me.head()
-	result = me.data[head]
+	result = &me.data[head]
 	me.count--
 	return
 }
 
-func (me *RingBuffer[T]) First() (result T) {
+func (me *RingBuffer[T]) First() (result *T) {
 	if me.count == 0 {
-		return
+		return nil
 	}
-	return me.data[me.head()]
+	return &me.data[me.head()]
 }
 
-func (me *RingBuffer[T]) Last() (result T) {
+func (me *RingBuffer[T]) Last() (result *T) {
 	if me.count == 0 {
-		return
+		return nil
 	}
 	i := me.tail - 1
 	if i < 0 {
 		i += len(me.data)
 	}
-	return me.data[i]
+	return &me.data[i]
 }
 
 func (me *RingBuffer[T]) toSlice(slice []T) {
 	if len(slice) != me.count {
 		panic("length of provided slice does not match count of elements in ring buffer")
+	}
+
+	// Nothing to copy for empty buffer
+	if me.count == 0 {
+		return
 	}
 
 	head := me.head()
@@ -151,7 +156,7 @@ func (me *RingBuffer[T]) ToSlice() []T {
 // ToSliceAndSort copies the elements of the ring buffer to a slice (optional nil at first, and reuse after) and sorts it.
 // s must not contain NaN, or the result is undefined.
 func (me *RingBuffer[T]) ToSliceAndSort(s []T) []T {
-	if s == nil {
+	if len(s) != me.count {
 		s = me.ToSlice()
 	} else {
 		me.toSlice(s)

@@ -27,7 +27,7 @@ func TestRingBuffer_Basic(t *testing.T) {
 	}
 
 	first := rb.First()
-	if first != 1 {
+	if first == nil || *first != 1 {
 		t.Fatalf("First want 1 got %v", first)
 	}
 }
@@ -48,7 +48,7 @@ func TestRingBuffer_WrapAndOverwrite(t *testing.T) {
 	if rb.Count() != 3 {
 		t.Fatalf("count want 3 got %d", rb.Count())
 	}
-	if first := rb.First(); first != 2 {
+	if first := rb.First(); first == nil || *first != 2 {
 		t.Fatalf("First want 2 got %v", first)
 	}
 }
@@ -84,8 +84,8 @@ func TestRingBuffer_Clear(t *testing.T) {
 		t.Fatalf("count after Clear want 0 got %d", rb.Count())
 	}
 	// First on empty returns zero-value
-	if first := rb.First(); first != 0 {
-		t.Fatalf("First on empty want 0 got %v", first)
+	if first := rb.First(); first != nil {
+		t.Fatalf("First on empty want nil got %v", first)
 	}
 }
 
@@ -287,7 +287,7 @@ func TestRingBuffer_FloatNaN_Sort(t *testing.T) {
 	rb.AddLast(1)
 	rb.AddLast(2)
 
-	out := rb.ToSliceAndSort(nil)
+	out := rb.ToSliceAndSortNaN(nil)
 	if len(out) != 5 {
 		t.Fatalf("len want 5 got %d", len(out))
 	}
