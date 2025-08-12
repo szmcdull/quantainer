@@ -156,7 +156,7 @@ func (me *RingBuffer[T]) ToSlice() []T {
 // ToSliceAndSort copies the elements of the ring buffer to a slice (optional nil at first, and reuse after) and sorts it.
 // s must not contain NaN, or the result is undefined.
 func (me *RingBuffer[T]) ToSliceAndSort(s []T) []T {
-	if len(s) != me.count {
+	if s == nil || len(s) < me.count {
 		s = me.ToSlice()
 	} else {
 		me.toSlice(s)
@@ -167,7 +167,7 @@ func (me *RingBuffer[T]) ToSliceAndSort(s []T) []T {
 
 // ToSliceAndSort copies the elements of the ring buffer to a slice (optional nil at first, and reuse after) and sorts it.
 func (me *RingBuffer[T]) ToSliceAndSortNaN(s []T) []T {
-	if s == nil {
+	if s == nil || len(s) < me.count {
 		s = me.ToSlice()
 	} else {
 		me.toSlice(s)

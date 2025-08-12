@@ -73,8 +73,13 @@ func (me *SortedRingBuffer[T]) ToSlice() []T {
 	return me.rb.ToSlice()
 }
 
-func (me *SortedRingBuffer[T]) SortedSlice() []T {
-	result := make([]T, me.rb.count)
+// SortedSlice returns a sorted slice of the elements in the buffer.
+// If cachedSlice is provided, it will be reused if large enough.
+func (me *SortedRingBuffer[T]) SortedSlice(cachedSlice []T) []T {
+	result := cachedSlice
+	if result == nil || len(result) < me.rb.count {
+		result = make([]T, me.rb.count)
+	}
 	ii := 0
 	for i := me.m.Iterator(); i.Valid(); i.Next() {
 		count := i.Value()

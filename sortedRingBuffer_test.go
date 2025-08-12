@@ -27,7 +27,7 @@ func ExampleSortedRingBuffer_SortedSlice() {
 	l.AddLast(3)
 	l.AddLast(2)
 	l.AddLast(1)
-	for _, v := range l.SortedSlice() {
+	for _, v := range l.SortedSlice(nil) {
 		fmt.Println(v)
 	}
 	// Output:
@@ -45,7 +45,7 @@ func TestSortedRingBuffer_DuplicatesAndEviction(t *testing.T) {
 	l.AddLast(3)
 	l.AddLast(2) // buffer is full: [2,1,2,3,2]
 
-	got := l.SortedSlice()
+	got := l.SortedSlice(nil)
 	want := []int{1, 2, 2, 2, 3}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("sorted before eviction: got %v want %v", got, want)
@@ -53,7 +53,7 @@ func TestSortedRingBuffer_DuplicatesAndEviction(t *testing.T) {
 
 	// Adding another element should evict the oldest (2) and keep counts correct
 	l.AddLast(4) // buffer becomes logically [1,2,3,2,4]
-	got = l.SortedSlice()
+	got = l.SortedSlice(nil)
 	want = []int{1, 2, 2, 3, 4}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("sorted after eviction: got %v want %v", got, want)
@@ -111,7 +111,7 @@ func TestSortedRingBuffer_Clear(t *testing.T) {
 	if s := l.ToSlice(); len(s) != 0 {
 		t.Fatalf("ToSlice after Clear want empty got %v", s)
 	}
-	if s := l.SortedSlice(); len(s) != 0 {
+	if s := l.SortedSlice(nil); len(s) != 0 {
 		t.Fatalf("SortedSlice after Clear want empty got %v", s)
 	}
 	if l.First() != nil || l.Last() != nil {
@@ -143,7 +143,7 @@ func TestSortedRingBuffer_FullAndMaxSize(t *testing.T) {
 	if got, want := l.ToSlice(), []int{2, 3}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("ToSlice after overwrite got %v want %v", got, want)
 	}
-	if got, want := l.SortedSlice(), []int{2, 3}; !reflect.DeepEqual(got, want) {
+	if got, want := l.SortedSlice(nil), []int{2, 3}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("SortedSlice after overwrite got %v want %v", got, want)
 	}
 }
