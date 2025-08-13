@@ -25,6 +25,33 @@ func ExampleRingBuffer_At() {
 	// 2 3 4 4 3
 }
 
+func TestRingBuffer_At(t *testing.T) {
+	rb := NewRingBuffer[int](3)
+	rb.AddLast(1)
+
+	v := rb.At(-1)
+	if v == nil || *v != 1 {
+		t.Fatalf("At(-1) want 1 got %v", *v)
+	}
+	v = rb.At(0)
+	if v == nil || *v != 1 {
+		t.Fatalf("At(0) want 1 got %v", *v)
+	}
+
+	rb.AddLast(2)
+	rb.AddLast(3)
+	rb.AddLast(4)
+
+	v = rb.At(-1)
+	if v == nil || *v != 4 {
+		t.Fatalf("At(-1) want 4 got %v", *v)
+	}
+	v = rb.At(0)
+	if v == nil || *v != 2 {
+		t.Fatalf("At(0) want 1 got %v", *v)
+	}
+}
+
 // helper to compare slices in tests
 func equalSlice[T comparable](a, b []T) bool {
 	return reflect.DeepEqual(a, b)

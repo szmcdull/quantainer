@@ -129,9 +129,10 @@ func (me *RingBuffer[T]) At(i int) (result *T) {
 	l := len(me.data)
 
 	if i < 0 {
-		i += l
+		i = me.tail + i
+	} else {
+		i = me.tail - me.count + i // i += head
 	}
-	i = me.tail - me.count + i // i += head
 	if i < 0 {
 		i += l
 	}
