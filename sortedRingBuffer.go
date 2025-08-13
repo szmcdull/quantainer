@@ -104,6 +104,10 @@ func (me *SortedRingBuffer[T]) Last() *T {
 	return me.rb.Last()
 }
 
+func (me *SortedRingBuffer[T]) At(i int) (result *T) {
+	return me.rb.At(i)
+}
+
 func (me *SortedRingBuffer[T]) Clear() {
 	me.rb.Clear()
 	me.m.Clear()

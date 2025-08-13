@@ -125,6 +125,24 @@ func (me *RingBuffer[T]) Last() (result *T) {
 	return &me.data[i]
 }
 
+func (me *RingBuffer[T]) At(i int) (result *T) {
+	l := len(me.data)
+
+	if i < 0 {
+		i += l
+	}
+	i = me.tail - me.count + i // i += head
+	if i < 0 {
+		i += l
+	}
+
+	if i < 0 || i >= l { // allow to access unfilled elements?
+		return nil
+	}
+
+	return &me.data[i]
+}
+
 func (me *RingBuffer[T]) toSlice(slice []T) {
 	if len(slice) != me.count {
 		panic("length of provided slice does not match count of elements in ring buffer")
