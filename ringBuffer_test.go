@@ -1,10 +1,29 @@
 package quantainer
 
 import (
+	"fmt"
 	"math"
 	"reflect"
 	"testing"
 )
+
+// ExampleRingBuffer_At demonstrates accessing elements by logical index
+// from oldest (0) to newest (count-1), including after the buffer wraps.
+func ExampleRingBuffer_At() {
+	rb := NewRingBuffer[int](3)
+	rb.AddLast(1)
+	rb.AddLast(2)
+	rb.AddLast(3)
+	fmt.Println(*rb.At(0), *rb.At(1), *rb.At(2), *rb.At(-1), *rb.At(-2))
+
+	// Adding another element overwrites the oldest (1)
+	rb.AddLast(4)
+	fmt.Println(*rb.At(0), *rb.At(1), *rb.At(2), *rb.At(-1), *rb.At(-2))
+
+	// Output:
+	// 1 2 3 3 2
+	// 2 3 4 4 3
+}
 
 // helper to compare slices in tests
 func equalSlice[T comparable](a, b []T) bool {
