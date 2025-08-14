@@ -85,6 +85,11 @@ func (me *RingBuffer[T]) AddLast(v T) {
 		tail = 0
 	}
 
+	if size == 0 {
+		me.tail = 0
+		return
+	}
+
 	me.data[tail] = v
 	tail++
 	if me.count < size {
