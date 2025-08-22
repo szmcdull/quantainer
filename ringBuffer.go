@@ -19,8 +19,8 @@ type (
 	}
 )
 
-func NewRingBuffer[T cmp.Ordered](size int) *RingBuffer[T] {
-	return &RingBuffer[T]{
+func NewRingBuffer[T cmp.Ordered](size int) RingBuffer[T] {
+	return RingBuffer[T]{
 		data: make([]T, size),
 		maxSize: func() int {
 			return size

@@ -8,7 +8,7 @@ import (
 /* SortedRingBuffer */
 
 type SortedRingBuffer[T constraints.Ordered] struct {
-	rb *RingBuffer[T]
+	rb RingBuffer[T]
 	m  *treemap.TreeMap[T, int]
 }
 
