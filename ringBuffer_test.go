@@ -112,7 +112,7 @@ func TestRingBuffer_ToSliceAndSort(t *testing.T) {
 	}
 	// sort into provided slice
 	buf := make([]int, rb.Count())
-	out := rb.ToSliceAndSort(buf)
+	out := RingBuffer2SliceAndSort(&rb, buf)
 	if &buf[0] != &out[0] { // ensure reuse when provided
 		t.Fatalf("ToSliceAndSort should reuse provided slice")
 	}
@@ -336,7 +336,7 @@ func TestRingBuffer_FloatNaN_Sort(t *testing.T) {
 	rb.AddLast(1)
 	rb.AddLast(2)
 
-	out := rb.ToSliceAndSortNaN(nil)
+	out := RingBuffer2SliceAndSortNaN(&rb, nil)
 	if len(out) != 5 {
 		t.Fatalf("len want 5 got %d", len(out))
 	}

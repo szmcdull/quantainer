@@ -1,17 +1,17 @@
 package quantainer
 
 import (
-	"cmp"
 	"slices"
 
 	"github.com/szmcdull/glinq/garray"
+	"golang.org/x/exp/constraints"
 )
 
 type (
 	// RingBuffer is a circular buffer with a fixed maximum size.
 	// It supports adding elements to the end and removing elements from the front.
 	// If the buffer is full, adding a new element will overwrite the oldest element.
-	RingBuffer[T cmp.Ordered] struct {
+	RingBuffer[T any] struct {
 		data    []T
 		tail    int // Points to the next available position
 		count   int // Number of elements in the buffer
@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func NewRingBuffer[T cmp.Ordered](size int) RingBuffer[T] {
+func NewRingBuffer[T any](size int) RingBuffer[T] {
 	return RingBuffer[T]{
 		data: make([]T, size),
 		maxSize: func() int {
@@ -30,7 +30,7 @@ func NewRingBuffer[T cmp.Ordered](size int) RingBuffer[T] {
 
 // NewRingBufferConfigurable creates a new ring buffer with a configurable maximum size.
 // If maxSize is changed at runtime, the buffer will not resize until you add an element.
-func NewRingBufferConfigurable[T cmp.Ordered](maxSize func() int) *RingBuffer[T] {
+func NewRingBufferConfigurable[T any](maxSize func() int) *RingBuffer[T] {
 	size := maxSize()
 	return &RingBuffer[T]{
 		data:    make([]T, size),
@@ -179,22 +179,22 @@ func (me *RingBuffer[T]) ToSlice() []T {
 
 // ToSliceAndSort copies the elements of the ring buffer to a slice (optional nil at first, and reuse after) and sorts it.
 // s must not contain NaN, or the result is undefined.
-func (me *RingBuffer[T]) ToSliceAndSort(s []T) []T {
-	if s == nil || len(s) < me.count {
-		s = me.ToSlice()
+func RingBuffer2SliceAndSort[T constraints.Ordered](rb *RingBuffer[T], s []T) []T {
+	if s == nil || len(s) < rb.count {
+		s = rb.ToSlice()
 	} else {
-		me.toSlice(s)
+		rb.toSlice(s)
 	}
 	garray.Sort(s)
 	return s
 }
 
 // ToSliceAndSort copies the elements of the ring buffer to a slice (optional nil at first, and reuse after) and sorts it.
-func (me *RingBuffer[T]) ToSliceAndSortNaN(s []T) []T {
-	if s == nil || len(s) < me.count {
-		s = me.ToSlice()
+func RingBuffer2SliceAndSortNaN[T constraints.Ordered](rb *RingBuffer[T], s []T) []T {
+	if s == nil || len(s) < rb.count {
+		s = rb.ToSlice()
 	} else {
-		me.toSlice(s)
+		rb.toSlice(s)
 	}
 	slices.Sort(s)
 	return s
