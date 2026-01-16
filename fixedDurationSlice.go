@@ -25,8 +25,8 @@ func (me *FixedDurationSlice[T]) Add(v T) {
 		i++
 	}
 	if i > 0 {
-		me.l = me.l[i-1:]
-		me.t = me.t[i-1:]
+		me.l = me.l[i:]
+		me.t = me.t[i:]
 	}
 }
 
