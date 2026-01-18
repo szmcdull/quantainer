@@ -290,6 +290,138 @@ func TestBusyPollRingBuffer_ReaderAfterWrites(t *testing.T) {
 	}
 }
 
+func TestBusyPollRingBuffer_BeginEndWrite(t *testing.T) {
+	buf := NewBusyPollRingBuffer[int](3)
+	reader := buf.Reader()
+
+	// Use BeginWrite/EndWrite to write a value
+	ptr := buf.BeginWrite()
+	*ptr = 42
+	buf.EndWrite()
+
+	// Read the value back
+	val, ok := reader.Read()
+	if !ok || val != 42 {
+		t.Errorf("Expected 42, got %d (ok=%v)", val, ok)
+	}
+
+	// No more data
+	_, ok = reader.Read()
+	if ok {
+		t.Error("Expected no more data")
+	}
+}
+
+func TestBusyPollRingBuffer_BeginEndWriteMultiple(t *testing.T) {
+	buf := NewBusyPollRingBuffer[int](5)
+	reader := buf.Reader()
+
+	// Write multiple values using BeginWrite/EndWrite
+	for i := 1; i <= 3; i++ {
+		ptr := buf.BeginWrite()
+		*ptr = i * 10
+		buf.EndWrite()
+	}
+
+	// Read them back
+	expected := []int{10, 20, 30}
+	for i, exp := range expected {
+		val, ok := reader.Read()
+		if !ok || val != exp {
+			t.Errorf("Read %d: expected %d, got %d (ok=%v)", i, exp, val, ok)
+		}
+	}
+
+	// No more data
+	_, ok := reader.Read()
+	if ok {
+		t.Error("Expected no more data")
+	}
+}
+
+func TestBusyPollRingBuffer_BeginEndWriteWrapAround(t *testing.T) {
+	buf := NewBusyPollRingBuffer[int](3)
+	reader := buf.Reader()
+
+	// Fill the buffer using BeginWrite/EndWrite
+	for i := 1; i <= 3; i++ {
+		ptr := buf.BeginWrite()
+		*ptr = i
+		buf.EndWrite()
+	}
+
+	// Write more, causing wrap-around
+	ptr := buf.BeginWrite()
+	*ptr = 4
+	buf.EndWrite()
+
+	ptr = buf.BeginWrite()
+	*ptr = 5
+	buf.EndWrite()
+
+	// After writes: from=1 (where 4 was written), to=2 (next position after 5)
+	// Reader should see: 4, then 5
+	val, ok := reader.Read()
+	if !ok || val != 4 {
+		t.Errorf("Expected 4, got %d (ok=%v)", val, ok)
+	}
+
+	val, ok = reader.Read()
+	if !ok || val != 5 {
+		t.Errorf("Expected 5, got %d (ok=%v)", val, ok)
+	}
+
+	// No more data
+	_, ok = reader.Read()
+	if ok {
+		t.Error("Expected no more data")
+	}
+}
+
+func TestBusyPollRingBuffer_BeginEndWriteStruct(t *testing.T) {
+	type TestStruct struct {
+		ID   int
+		Name string
+	}
+
+	buf := NewBusyPollRingBuffer[TestStruct](3)
+	reader := buf.Reader()
+
+	// Write using BeginWrite/EndWrite
+	ptr := buf.BeginWrite()
+	ptr.ID = 100
+	ptr.Name = "test"
+	buf.EndWrite()
+
+	// Read back
+	val, ok := reader.Read()
+	if !ok || val.ID != 100 || val.Name != "test" {
+		t.Errorf("Expected {100, 'test'}, got {%d, '%s'} (ok=%v)", val.ID, val.Name, ok)
+	}
+}
+
+func TestBusyPollRingBuffer_BeginWritePointerStability(t *testing.T) {
+	buf := NewBusyPollRingBuffer[int](3)
+
+	// Get pointer from BeginWrite
+	ptr1 := buf.BeginWrite()
+	*ptr1 = 99
+
+	// Before EndWrite, the pointer should point to the same location
+	if *ptr1 != 99 {
+		t.Errorf("Expected pointer to still contain 99, got %d", *ptr1)
+	}
+
+	buf.EndWrite()
+
+	// After EndWrite, the value should be in the buffer
+	reader := buf.Reader()
+	val, ok := reader.Read()
+	if !ok || val != 99 {
+		t.Errorf("Expected 99, got %d (ok=%v)", val, ok)
+	}
+}
+
 func BenchmarkBusyPollRingBuffer_Write(b *testing.B) {
 	buf := NewBusyPollRingBuffer[int](1000)
 	b.ResetTimer()
@@ -333,5 +465,15 @@ func BenchmarkBusyPollRingBuffer_WriteRead(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		buf.Write(i)
 		reader.Read()
+	}
+}
+
+func BenchmarkBusyPollRingBuffer_BeginEndWrite(b *testing.B) {
+	buf := NewBusyPollRingBuffer[int](1000)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		ptr := buf.BeginWrite()
+		*ptr = i
+		buf.EndWrite()
 	}
 }

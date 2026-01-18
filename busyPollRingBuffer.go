@@ -35,6 +35,21 @@ func (me *BusyPollRingBuffer[T]) Write(v T) {
 	}
 }
 
+func (me *BusyPollRingBuffer[T]) BeginWrite() *T {
+	ptr := &me.buf[me.to]
+	return ptr
+}
+
+func (me *BusyPollRingBuffer[T]) EndWrite() {
+	to := me.to
+	me.from = to
+	to++
+	if to >= len(me.buf) {
+		to = 0
+	}
+	me.to = to
+}
+
 func (me *BusyPollRingBuffer[T]) WriteMany(vs []T) {
 	from := me.to
 	to := from
