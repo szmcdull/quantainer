@@ -75,11 +75,11 @@ func (me *BusyPollRingBuffer[T]) Reader() *BusyPollRingBufferReader[T] {
 	}
 }
 
-func (me *BusyPollRingBufferReader[T]) Read() (result T, ok bool) {
+func (me *BusyPollRingBufferReader[T]) Read(result *T) (ok bool) {
 	if me.current == me.buf.to {
 		return
 	}
-	result = me.buf.buf[me.current]
+	*result = me.buf.buf[me.current]
 	ok = true
 	me.current++
 	if me.current >= len(me.buf.buf) {

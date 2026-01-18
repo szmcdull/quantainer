@@ -20,7 +20,8 @@ func TestBusyPollRingBuffer_Write(t *testing.T) {
 
 	// Write a single value
 	buf.Write(10)
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok {
 		t.Fatal("Expected to read a value")
 	}
@@ -29,7 +30,7 @@ func TestBusyPollRingBuffer_Write(t *testing.T) {
 	}
 
 	// No more data available
-	_, ok = reader.Read()
+	ok = reader.Read(&val)
 	if ok {
 		t.Error("Expected no more data")
 	}
@@ -45,21 +46,22 @@ func TestBusyPollRingBuffer_WriteMultiple(t *testing.T) {
 	buf.Write(3)
 
 	// Read them back
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok || val != 1 {
 		t.Errorf("Expected 1, got %d (ok=%v)", val, ok)
 	}
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != 2 {
 		t.Errorf("Expected 2, got %d (ok=%v)", val, ok)
 	}
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != 3 {
 		t.Errorf("Expected 3, got %d (ok=%v)", val, ok)
 	}
 
 	// No more data
-	_, ok = reader.Read()
+	ok = reader.Read(&val)
 	if ok {
 		t.Error("Expected no more data")
 	}
@@ -81,18 +83,19 @@ func TestBusyPollRingBuffer_WrapAround(t *testing.T) {
 	// Reader starts from 'from' position (4's position) and reads until 'to'
 	// After writes: from=1 (where 4 was written), to=2 (next position after 5)
 	// Reader should see: 4, then 5
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok || val != 4 {
 		t.Errorf("Expected 4, got %d (ok=%v)", val, ok)
 	}
 
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != 5 {
 		t.Errorf("Expected 5, got %d (ok=%v)", val, ok)
 	}
 
 	// No more data
-	_, ok = reader.Read()
+	ok = reader.Read(&val)
 	if ok {
 		t.Error("Expected no more data")
 	}
@@ -108,21 +111,22 @@ func TestBusyPollRingBuffer_WriteMany(t *testing.T) {
 	// Due to WriteMany implementation: from stays at initial position (0)
 	// Values written at positions 0, 1, 2; to=3, from=0
 	// Reader reads from position 0 to position 3 (exclusive)
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok || val != 10 {
 		t.Errorf("Expected 10, got %d (ok=%v)", val, ok)
 	}
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != 20 {
 		t.Errorf("Expected 20, got %d (ok=%v)", val, ok)
 	}
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != 30 {
 		t.Errorf("Expected 30, got %d (ok=%v)", val, ok)
 	}
 
 	// No more data
-	_, ok = reader.Read()
+	ok = reader.Read(&val)
 	if ok {
 		t.Error("Expected no more data")
 	}
@@ -140,17 +144,18 @@ func TestBusyPollRingBuffer_WriteManyWrapAround(t *testing.T) {
 	reader := buf.Reader()
 
 	// Reader reads from position 0 to position 2 (exclusive)
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok || val != 4 {
 		t.Errorf("Expected 4, got %d (ok=%v)", val, ok)
 	}
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != 5 {
 		t.Errorf("Expected 5, got %d (ok=%v)", val, ok)
 	}
 
 	// No more data (to=2, current=2)
-	_, ok = reader.Read()
+	ok = reader.Read(&val)
 	if ok {
 		t.Error("Expected no more data")
 	}
@@ -168,14 +173,15 @@ func TestBusyPollRingBuffer_MultipleReaders(t *testing.T) {
 	buf.Write(200)
 
 	// Both readers should see the same data
-	val1, ok1 := reader1.Read()
-	val2, ok2 := reader2.Read()
+	var val1, val2 int
+	ok1 := reader1.Read(&val1)
+	ok2 := reader2.Read(&val2)
 	if !ok1 || !ok2 || val1 != 100 || val2 != 100 {
 		t.Errorf("Expected both readers to see 100, got %d and %d", val1, val2)
 	}
 
-	val1, ok1 = reader1.Read()
-	val2, ok2 = reader2.Read()
+	ok1 = reader1.Read(&val1)
+	ok2 = reader2.Read(&val2)
 	if !ok1 || !ok2 || val1 != 200 || val2 != 200 {
 		t.Errorf("Expected both readers to see 200, got %d and %d", val1, val2)
 	}
@@ -188,8 +194,9 @@ func TestBusyPollRingBuffer_ReaderWrapsAround(t *testing.T) {
 	// Write values that will cause wrap-around
 	buf.Write(1)         // pos 0, from=0, to=1
 	buf.Write(2)         // pos 1, from=1, to=2
-	_, _ = reader.Read() // Read 1 from pos 0, current=1
-	_, _ = reader.Read() // Read 2 from pos 1, current=2
+	var val int
+	_ = reader.Read(&val) // Read 1 from pos 0, current=1
+	_ = reader.Read(&val) // Read 2 from pos 1, current=2
 
 	buf.Write(3) // pos 2, from=2, to=0
 	buf.Write(4) // pos 0, from=0, to=1
@@ -199,7 +206,7 @@ func TestBusyPollRingBuffer_ReaderWrapsAround(t *testing.T) {
 	// Reader current=2, but it missed value at pos 0 (which is 4)
 	// Reader can't read because current(2) == to(2)
 	// This demonstrates the "readers would miss data if they are too slow" behavior
-	_, ok := reader.Read()
+	ok := reader.Read(&val)
 	if ok {
 		t.Error("Expected no data - reader was too slow and missed data")
 	}
@@ -210,7 +217,8 @@ func TestBusyPollRingBuffer_EmptyRead(t *testing.T) {
 	reader := buf.Reader()
 
 	// Try to read from empty buffer
-	_, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if ok {
 		t.Error("Expected no data from empty buffer")
 	}
@@ -223,11 +231,12 @@ func TestBusyPollRingBuffer_StringType(t *testing.T) {
 	buf.Write("hello")
 	buf.Write("world")
 
-	val, ok := reader.Read()
+	var val string
+	ok := reader.Read(&val)
 	if !ok || val != "hello" {
 		t.Errorf("Expected 'hello', got '%s' (ok=%v)", val, ok)
 	}
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != "world" {
 		t.Errorf("Expected 'world', got '%s' (ok=%v)", val, ok)
 	}
@@ -245,11 +254,12 @@ func TestBusyPollRingBuffer_StructType(t *testing.T) {
 	buf.Write(TestStruct{ID: 1, Name: "first"})
 	buf.Write(TestStruct{ID: 2, Name: "second"})
 
-	val, ok := reader.Read()
+	var val TestStruct
+	ok := reader.Read(&val)
 	if !ok || val.ID != 1 || val.Name != "first" {
 		t.Errorf("Expected {1, 'first'}, got {%d, '%s'} (ok=%v)", val.ID, val.Name, ok)
 	}
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val.ID != 2 || val.Name != "second" {
 		t.Errorf("Expected {2, 'second'}, got {%d, '%s'} (ok=%v)", val.ID, val.Name, ok)
 	}
@@ -279,12 +289,13 @@ func TestBusyPollRingBuffer_ReaderAfterWrites(t *testing.T) {
 	buf.Write(4) // pos 0, from=0, to=1
 
 	// Reader is at current=2, can read from pos 2 (value 3) then wrap to pos 0 (value 4)
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok || val != 3 {
 		t.Errorf("Expected 3, got %d (ok=%v)", val, ok)
 	}
 
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != 4 {
 		t.Errorf("Expected 4, got %d (ok=%v)", val, ok)
 	}
@@ -300,13 +311,14 @@ func TestBusyPollRingBuffer_BeginEndWrite(t *testing.T) {
 	buf.EndWrite()
 
 	// Read the value back
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok || val != 42 {
 		t.Errorf("Expected 42, got %d (ok=%v)", val, ok)
 	}
 
 	// No more data
-	_, ok = reader.Read()
+	ok = reader.Read(&val)
 	if ok {
 		t.Error("Expected no more data")
 	}
@@ -325,15 +337,16 @@ func TestBusyPollRingBuffer_BeginEndWriteMultiple(t *testing.T) {
 
 	// Read them back
 	expected := []int{10, 20, 30}
+	var val int
 	for i, exp := range expected {
-		val, ok := reader.Read()
+		ok := reader.Read(&val)
 		if !ok || val != exp {
 			t.Errorf("Read %d: expected %d, got %d (ok=%v)", i, exp, val, ok)
 		}
 	}
 
 	// No more data
-	_, ok := reader.Read()
+	ok := reader.Read(&val)
 	if ok {
 		t.Error("Expected no more data")
 	}
@@ -361,18 +374,19 @@ func TestBusyPollRingBuffer_BeginEndWriteWrapAround(t *testing.T) {
 
 	// After writes: from=1 (where 4 was written), to=2 (next position after 5)
 	// Reader should see: 4, then 5
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok || val != 4 {
 		t.Errorf("Expected 4, got %d (ok=%v)", val, ok)
 	}
 
-	val, ok = reader.Read()
+	ok = reader.Read(&val)
 	if !ok || val != 5 {
 		t.Errorf("Expected 5, got %d (ok=%v)", val, ok)
 	}
 
 	// No more data
-	_, ok = reader.Read()
+	ok = reader.Read(&val)
 	if ok {
 		t.Error("Expected no more data")
 	}
@@ -394,7 +408,8 @@ func TestBusyPollRingBuffer_BeginEndWriteStruct(t *testing.T) {
 	buf.EndWrite()
 
 	// Read back
-	val, ok := reader.Read()
+	var val TestStruct
+	ok := reader.Read(&val)
 	if !ok || val.ID != 100 || val.Name != "test" {
 		t.Errorf("Expected {100, 'test'}, got {%d, '%s'} (ok=%v)", val.ID, val.Name, ok)
 	}
@@ -416,7 +431,8 @@ func TestBusyPollRingBuffer_BeginWritePointerStability(t *testing.T) {
 
 	// After EndWrite, the value should be in the buffer
 	reader := buf.Reader()
-	val, ok := reader.Read()
+	var val int
+	ok := reader.Read(&val)
 	if !ok || val != 99 {
 		t.Errorf("Expected 99, got %d (ok=%v)", val, ok)
 	}
@@ -452,8 +468,9 @@ func BenchmarkBusyPollRingBuffer_Read(b *testing.B) {
 	}
 
 	b.ResetTimer()
+	var val int
 	for i := 0; i < b.N; i++ {
-		reader.Read()
+		reader.Read(&val)
 	}
 }
 
@@ -462,9 +479,10 @@ func BenchmarkBusyPollRingBuffer_WriteRead(b *testing.B) {
 	reader := buf.Reader()
 
 	b.ResetTimer()
+	var val int
 	for i := 0; i < b.N; i++ {
 		buf.Write(i)
-		reader.Read()
+		reader.Read(&val)
 	}
 }
 
