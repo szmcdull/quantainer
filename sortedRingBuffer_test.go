@@ -161,3 +161,39 @@ func TestSortedRingBuffer_SizeZero_AddPanics(t *testing.T) {
 		t.Fatalf("count after AddLast want 0 got %d", l.Count())
 	}
 }
+
+// maxSize==0: RingBuffer.AddLast does not store the value, so the treemap must
+// not grow. Otherwise SortedSlice allocates by rb.count (0) then indexes past it.
+func TestSortedRingBuffer_SizeZero_SortedSliceStaysEmpty(t *testing.T) {
+	l := NewSortedRingBuffer[int](0)
+	l.AddLast(1)
+	l.AddLast(2)
+	got := l.SortedSlice(nil)
+	if len(got) != 0 {
+		t.Fatalf("SortedSlice after AddLast on size 0 want empty got %v", got)
+	}
+}
+
+// Filled is Full without the size-0 degeneracy: empty and size-0 are not filled.
+func TestSortedRingBuffer_Filled(t *testing.T) {
+	zero := NewSortedRingBuffer[int](0)
+	if !zero.Full() {
+		t.Fatalf("size 0 Full want true")
+	}
+	if zero.Filled() {
+		t.Fatalf("size 0 Filled want false")
+	}
+
+	l := NewSortedRingBuffer[int](2)
+	if l.Filled() {
+		t.Fatalf("empty Filled want false")
+	}
+	l.AddLast(1)
+	if l.Filled() {
+		t.Fatalf("partial Filled want false")
+	}
+	l.AddLast(2)
+	if !l.Filled() {
+		t.Fatalf("at capacity Filled want true")
+	}
+}

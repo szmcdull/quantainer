@@ -328,6 +328,30 @@ func TestRingBuffer_FullFlag(t *testing.T) {
 	}
 }
 
+// Filled is Full without the size-0 degeneracy: empty and size-0 are not filled.
+func TestRingBuffer_Filled(t *testing.T) {
+	zero := NewRingBuffer[int](0)
+	if !zero.Full() {
+		t.Fatalf("size 0 Full want true")
+	}
+	if zero.Filled() {
+		t.Fatalf("size 0 Filled want false")
+	}
+
+	rb := NewRingBuffer[int](2)
+	if rb.Filled() {
+		t.Fatalf("empty Filled want false")
+	}
+	rb.AddLast(1)
+	if rb.Filled() {
+		t.Fatalf("partial Filled want false")
+	}
+	rb.AddLast(2)
+	if !rb.Filled() {
+		t.Fatalf("at capacity Filled want true")
+	}
+}
+
 func TestRingBuffer_FloatNaN_Sort(t *testing.T) {
 	rb := NewRingBuffer[float64](5)
 	rb.AddLast(5)

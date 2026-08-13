@@ -74,3 +74,8 @@ func (me *SyncFixedList[T]) MaxSize() int {
 func (me *SyncFixedList[T]) Full() bool {
 	return me.l.l.count == me.l.maxSize()
 }
+
+// Filled is the same as Full except it returns false if the buffer's size is 0
+func (me *SyncFixedList[T]) Filled() bool {
+	return me.l.l.count != 0 && me.Full()
+}

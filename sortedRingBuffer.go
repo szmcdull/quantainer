@@ -33,7 +33,11 @@ func (me *SortedRingBuffer[T]) AddLast(v T) {
 	if me.rb.Full() {
 		me.PopFirst()
 	}
+	countBefore := me.rb.count
 	me.rb.AddLast(v)
+	if me.rb.count == countBefore {
+		return
+	}
 	me.addToTreeMap(v)
 }
 
@@ -117,6 +121,12 @@ func (me *SortedRingBuffer[T]) MaxSize() int {
 	return me.rb.maxSize()
 }
 
+// Full returns true if the buffer's max size is reached.
 func (me *SortedRingBuffer[T]) Full() bool {
 	return me.rb.Full()
+}
+
+// Filled is the same as Full except it returns false if the buffer's size is 0
+func (me *SortedRingBuffer[T]) Filled() bool {
+	return me.rb.count != 0 && me.rb.Full()
 }

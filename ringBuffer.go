@@ -46,6 +46,11 @@ func (me *RingBuffer[T]) Full() bool {
 	return me.count >= me.maxSize()
 }
 
+// Filled is the same as Full except it returns false if the buffer's size is 0
+func (me *RingBuffer[T]) Filled() bool {
+	return me.count != 0 && me.Full()
+}
+
 func (me *RingBuffer[T]) head() int {
 	result := me.tail - me.count
 	if result < 0 {

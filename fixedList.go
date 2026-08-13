@@ -72,3 +72,8 @@ func (me *FixedList[T]) MaxSize() int {
 func (me *FixedList[T]) Full() bool {
 	return me.l.count == me.maxSize()
 }
+
+// Filled is the same as Full except it returns false if the buffer's size is 0
+func (me *FixedList[T]) Filled() bool {
+	return me.l.count != 0 && me.Full()
+}

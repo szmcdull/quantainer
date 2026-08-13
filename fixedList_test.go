@@ -1,6 +1,9 @@
 package quantainer
 
-import "fmt"
+import (
+	"fmt"
+	"testing"
+)
 
 func ExampleFixedList_AddLast() {
 	l := NewFixedList[int](3)
@@ -30,4 +33,28 @@ func ExampleFixedList_AddFirst() {
 	// 4
 	// 3
 	// 2
+}
+
+// Filled is Full without the size-0 degeneracy: empty and size-0 are not filled.
+func TestFixedList_Filled(t *testing.T) {
+	zero := NewFixedList[int](0)
+	if !zero.Full() {
+		t.Fatalf("size 0 Full want true")
+	}
+	if zero.Filled() {
+		t.Fatalf("size 0 Filled want false")
+	}
+
+	l := NewFixedList[int](2)
+	if l.Filled() {
+		t.Fatalf("empty Filled want false")
+	}
+	l.AddLast(1)
+	if l.Filled() {
+		t.Fatalf("partial Filled want false")
+	}
+	l.AddLast(2)
+	if !l.Filled() {
+		t.Fatalf("at capacity Filled want true")
+	}
 }
